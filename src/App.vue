@@ -4,15 +4,16 @@
     <Row>
       <i-col :span="1"><br></i-col>
       <i-col span="8"><div>
-        <i-input
+        <textarea
           type="textarea"
-          :autosize="{ minRows: 10, maxRows: 50}"
+          :autosize="{ minRows: 1, maxRows: 50}"
           placeholder="请输入备忘录内容"
-          v-model="textarea2">
-        </i-input>
+          v-model="textarea2"
+          style="width: 468px">
+        </textarea>
         <i-table height="280" :columns="columns1" :data="data2"></i-table>
         <br>
-        <i-button >保存备忘录</i-button>
+        <i-button @click="addContent">保存备忘录</i-button>
       </div></i-col>
       <i-col :span="1"><br></i-col>
       <i-col :span="13">
@@ -70,6 +71,7 @@
         gestureResult: '',
         lastPoints: [],
         newGestureName: '',
+        textarea2: ''
       };
     },
     directives: {
@@ -85,6 +87,21 @@
           name: this.newGestureName,
           points: this.lastPoints,
         });
+        let gesture_name = this.newGestureName;
+        let gesture_content = this.textarea2;
+        this.data2.push({name:gesture_name,context:gesture_content});
+        this.textarea2 = '';
+      },
+      addContent(){
+        let new_content = this.textarea2;
+        let ser_name = this.gestureResult;
+        console.log(ser_name);
+        for (let i = 0;i<this.data2.length;i++){
+          if(this.data2[i].name==ser_name){
+            console.log(new_content);
+            this.data2[i].context = new_content;
+          }
+        }
       },
       'smart-gesture-onswipe': function(list) {
         this.swipeResult = list;
@@ -101,6 +118,13 @@
       'smart-gesture-ongesture': function(res, points) {
         this.gestureResult = res.score > 2 ? res.name : '未识别';
         this.lastPoints = points;
+        if(res.score>2){
+           for (let i = 0;i<this.data2.length;i++){
+              if(this.data2[i].name==res.name){
+                this.textarea2 = this.data2[i].context;
+              }
+           }
+        }
       },
     }
   }
