@@ -23,7 +23,7 @@ function searchUser(username,callback) {
 }
 
 
-function addUser(username,password,email,phone,callback) {
+function addUser(username,password,callback) {
     var sql = db.prepare("insert into user(username,password) values(?,?)");
     sql.run(username,password,function(err){
         if(!err){
