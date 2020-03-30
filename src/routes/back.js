@@ -14,7 +14,9 @@ router.get('/users', function(req, res, next) {
        res.json(data);
    })
 })
+//参数参见memoConnection.js中function参数
 
+//新增memo post
 router.post('/memo', function (req,res,next) {
   if (req.query.id) {
     memoConnection.updateMemo(req.query.id, req.query.title, req.query.content, function (data) {
@@ -26,38 +28,41 @@ router.post('/memo', function (req,res,next) {
     });
   }
 })
-
+//删除memo delete
 router.delete('/memo', function (req,res,next) {
   memoConnection.addMemo(req.query.id, function (data) {
     res.json(data);
   });
 })
 
-
+//获取memo get (如果id不为空，根据id查询，负责根据userId,key查询）
 router.get('/memo', function (req,res,next) {
   if (req.query.id) {
     memoConnection.getMemoById(req.query.id, function (data) {
       res.json(data);
     });
   } else {
-    memoConnection.getMemo(req.query.userId, req.query.key, req.query.content, function (data) {
+    memoConnection.getMemo(req.query.userId, req.query.key, function (data) {
       res.json(data);
     });
   }
 })
 
+//获取所有memo get
 router.get('/memos', function (req,res,next) {
   memoConnection.getAllMemo(req.query.userId, function (data) {
     res.json(data);
   });
 })
 
+//搜索memo get
 router.get('/search', function (req,res,next) {
   memoConnection.searchMemo(req.query.userId, req.query.title, function (data) {
     res.json(data);
   });
 })
 
+//获取所有的key get
 router.get('/keys', function (req,res,next) {
   memoConnection.getAllKey(req.query.userId, function (data) {
     res.json(data);
