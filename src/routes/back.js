@@ -18,7 +18,7 @@ router.get('/users', function(req, res, next) {
 
 //新增memo post
 router.post('/memo', function (req,res,next) {
-  if (req.query.id) {
+  if (req.body.id) {
     memoConnection.updateMemo(req.body.id, req.body.title, req.body.content, function (data) {
       res.json(data);
     });
@@ -30,7 +30,7 @@ router.post('/memo', function (req,res,next) {
 })
 //删除memo delete
 router.delete('/memo', function (req,res,next) {
-  memoConnection.addMemo(req.query.id, function (data) {
+  memoConnection.deleteMemo(req.query.id, function (data) {
     res.json(data);
   });
 })

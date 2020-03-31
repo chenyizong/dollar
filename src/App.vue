@@ -14,7 +14,8 @@
         </textarea>
           <i-table height="280" :columns="columns1" :data="data2"></i-table>
           <br>
-          <i-button @click="addContent">保存备忘录</i-button>
+          <i-button @click="addContent">保存修改</i-button>
+          <i-button @click="deleteGesture">删除手势</i-button>
         </div>
       </i-col>
       <i-col :span="1"><br></i-col>
@@ -41,6 +42,7 @@
 
 <script>
   import smartGesture from '../lib/smart-gesture';
+  var gesture_id;
   export default {
     data() {
       return {
@@ -106,6 +108,9 @@
           key:cur_s,
           title:gesture_name,
           content:gesture_content
+        }).then(function (data) {
+          location.reload();
+          alert("添加手势成功！");
         })
         this.textarea2 = '';
       },
@@ -116,19 +121,22 @@
         for(let i = 0;i<this.swipeResult.length;i++){
           cur_s = cur_s+this.swipeResult[i];
         }
-        var this_ = this;
-        this.$axios.get('/memo',{params: { userId: 1,key:cur_s }}).then(function (data) {
-          var temp = data.data;
-          var ges_id = temp.id;
-          console.log(ges_id)
-          console.log(ser_name)
-          console.log(new_content)
-          this_.$axios.post('/memo',{
-            id:ges_id,
+          this.$axios.post('/memo',{
+            id:gesture_id,
             title:ser_name,
             content:new_content
+          }).then(function (data) {
+            location.reload();
+            alert('修改成功！');
           })
-        })
+
+      },
+      deleteGesture(){
+       this.$axios.delete('/memo',{params: { 'id': gesture_id }}).then(function (data) {
+         location.reload();
+         alert('删除成功！');
+       })
+
       },
       'smart-gesture-onswipe': function (list) {
         this.swipeResult = list;
@@ -149,6 +157,7 @@
         var this_ = this;
         this.$axios.get('/memo',{params: { 'userId': 1,'key': cur_s }}).then(function (data) {
           var temp = data.data;
+          gesture_id = temp.id;
           if(temp.length==0){
             this_.gestureResult = '未识别！新手势！';
           }else{
