@@ -5,25 +5,25 @@ var router = express.Router();
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-    userConnection.getAllUser(function (data) {
-        res.render('back',{users:data});
-    })
+  userConnection.getAllUser(function (data) {
+    res.render('back',{users:data});
+  })
 })
 router.get('/users', function(req, res, next) {
-   userConnection.getAllUser(function (data) {
-       res.json(data);
-   })
+  userConnection.getAllUser(function (data) {
+    res.json(data);
+  })
 })
 //参数参见memoConnection.js中function参数
 
 //新增memo post
 router.post('/memo', function (req,res,next) {
   if (req.query.id) {
-    memoConnection.updateMemo(req.query.id, req.query.title, req.query.content, function (data) {
+    memoConnection.updateMemo(req.body.id, req.body.title, req.body.content, function (data) {
       res.json(data);
     });
   } else {
-    memoConnection.addMemo(req.query.userId, req.query.key, req.query.title, req.query.content, function (data) {
+    memoConnection.addMemo(req.body.userId, req.body.key, req.body.title, req.body.content, function (data) {
       res.json(data);
     });
   }

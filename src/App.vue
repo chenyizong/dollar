@@ -3,7 +3,8 @@
     <br>
     <Row>
       <i-col :span="1"><br></i-col>
-      <i-col span="8"><div>
+      <i-col span="8">
+        <div>
         <textarea
           type="textarea"
           :autosize="{ minRows: 1, maxRows: 50}"
@@ -11,10 +12,11 @@
           v-model="textarea2"
           style="width: 468px">
         </textarea>
-        <i-table height="280" :columns="columns1" :data="data2"></i-table>
-        <br>
-        <i-button @click="addContent">保存备忘录</i-button>
-      </div></i-col>
+          <i-table height="280" :columns="columns1" :data="data2"></i-table>
+          <br>
+          <i-button @click="addContent">保存备忘录</i-button>
+        </div>
+      </i-col>
       <i-col :span="1"><br></i-col>
       <i-col :span="13">
         <div class="recognize">
@@ -49,16 +51,10 @@
           title: '内容',
           key: 'context'
         }],
-        data2: [
-          {
-            name: 'W',
-            context: '王凡是渣男！'
-          },
-          {
-            name: 'X',
-            context: '渣男是王凡！'
-          }
-        ],
+        data2: [{
+          name: 'W',
+          context: '王凡是渣男！'
+        }],
         options: {
           enablePath: true,
           timeDelay: 100,
@@ -74,10 +70,22 @@
         textarea2: ''
       };
     },
+    ready() {
+      this.loadGestures();
+    },
     directives: {
       smartGesture
     },
     methods: {
+      loadGestures() {
+        var this_ = this
+        this.$axios.get('/memos',{params: { 'userId': 1 }}).then(function (data) {
+          var temp = data.data;
+          for (let i = 0; i < temp.length; i++) {
+            this_.data2.push({name: temp[i].title, context: temp[i].content});
+          }
+        })
+      },
       addNewGesture() {
         if (!this.newGestureName) {
           alert('给我起个名字啊！');
@@ -89,42 +97,68 @@
         });
         let gesture_name = this.newGestureName;
         let gesture_content = this.textarea2;
-        this.data2.push({name:gesture_name,context:gesture_content});
+        let cur_s = '';
+        for(let i = 0;i<this.swipeResult.length;i++){
+          cur_s = cur_s+this.swipeResult[i];
+        }
+        this.$axios.post('/memo',{
+          userId:1,
+          key:cur_s,
+          title:gesture_name,
+          content:gesture_content
+        })
         this.textarea2 = '';
       },
-      addContent(){
+      addContent() {
         let new_content = this.textarea2;
-        let ser_name = this.gestureResult;
-        console.log(ser_name);
-        for (let i = 0;i<this.data2.length;i++){
-          if(this.data2[i].name==ser_name){
-            console.log(new_content);
-            this.data2[i].context = new_content;
-          }
+        let ser_name = this.newGestureName;
+        let cur_s = '';
+        for(let i = 0;i<this.swipeResult.length;i++){
+          cur_s = cur_s+this.swipeResult[i];
         }
+        var this_ = this;
+        this.$axios.get('/memo',{params: { userId: 1,key:cur_s }}).then(function (data) {
+          var temp = data.data;
+          var ges_id = temp.id;
+          console.log(ges_id)
+          console.log(ser_name)
+          console.log(new_content)
+          this_.$axios.post('/memo',{
+            id:ges_id,
+            title:ser_name,
+            content:new_content
+          })
+        })
       },
-      'smart-gesture-onswipe': function(list) {
+      'smart-gesture-onswipe': function (list) {
         this.swipeResult = list;
       },
-      'smart-gesture-ongesture': function(res, points) {
+      'smart-gesture-ongesture': function (res, points) {
         this.gestureResult = res.score > 2 ? res.name : '未识别';
         this.lastPoints = points;
+        this.newGestureName = res.name;
       },
     },
     events: {
-      'smart-gesture-onswipe': function(list) {
+      'smart-gesture-onswipe': function (list) {
         this.swipeResult = list;
-      },
-      'smart-gesture-ongesture': function(res, points) {
-        this.gestureResult = res.score > 2 ? res.name : '未识别';
-        this.lastPoints = points;
-        if(res.score>2){
-           for (let i = 0;i<this.data2.length;i++){
-              if(this.data2[i].name==res.name){
-                this.textarea2 = this.data2[i].context;
-              }
-           }
+        let cur_s = '';
+        for(let i = 0;i<this.swipeResult.length;i++){
+          cur_s = cur_s+this.swipeResult[i];
         }
+        var this_ = this;
+        this.$axios.get('/memo',{params: { 'userId': 1,'key': cur_s }}).then(function (data) {
+          var temp = data.data;
+          if(temp.length==0){
+            this_.gestureResult = '未识别！新手势！';
+          }else{
+            this_.textarea2 = temp.content;
+            this_.gestureResult = temp.title;
+            this_.newGestureName = temp.title;
+          }
+        })
+      },
+      'smart-gesture-ongesture': function (res, points) {
       },
     }
   }
@@ -135,26 +169,33 @@
   .i-col {
     border-radius: 4px;
   }
+
   .bg-purple-dark {
     background: #99a9bf;
   }
-  .i-button{
+
+  .i-button {
     margin-top: 5px;
   }
+
   .bg-purple {
     background: #d3dce6;
   }
+
   .bg-purple-light {
     background: #e5e9f2;
   }
+
   .grid-content {
     border-radius: 4px;
     min-height: 36px;
   }
+
   .row-bg {
     padding: 10px 0;
     background-color: #f9fafc;
   }
+
   .recognize {
     border: 5px solid #ccc;
     border-radius: 4px;
@@ -187,7 +228,7 @@
 
   .stage {
     height: 400px;
-    background:#f5f7f9;
+    background: #f5f7f9;
     position: relative;
     margin: 15px 0;
   }

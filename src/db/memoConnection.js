@@ -3,7 +3,7 @@ var db = new sqlite3.Database('./memo');
 
 function addMemo(userId,key,title,content,callback) {
     var sql = db.prepare("insert into memo(user_id,key_serial,title,content) values(?,?,?,?)");
-    sql.run(userId,key,title,content,function(err){
+    sql.run(userId,key,title,content,function(err,res){
         if(!err){
             callback(res)
         }
@@ -11,7 +11,6 @@ function addMemo(userId,key,title,content,callback) {
             console.log(err);
     });
     sql.finalize();
-
 }
 
 function deleteMemo(id,callback) {
