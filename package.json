@@ -10,7 +10,7 @@
   "main": "lib/smart-gesture.js",
   "dependencies": {
     "ajax": "0.0.4",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "element-ui": "^2.13.0",
     "iview": "^1.0.1",
     "smart-gesture": "^1.2.0",
